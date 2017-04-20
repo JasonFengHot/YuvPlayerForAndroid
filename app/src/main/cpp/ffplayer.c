@@ -591,7 +591,9 @@ int queue_picture(VideoState *is, AVFrame *pFrame, double pts) {
 
     VideoPicture *vp;
     int dst_pix_fmt;
-    AVPicture pict;
+//    AVPicture pict;
+    AVFrame *frame = av_frame_alloc();
+
 
     /* wait until we have space for a new pic */
     SDL_LockMutex(is->pictq_mutex);
@@ -629,18 +631,23 @@ int queue_picture(VideoState *is, AVFrame *pFrame, double pts) {
         dst_pix_fmt = AV_PIX_FMT_YUV420P;
         /* point pict at the queue */
 
-        pict.data[0] = vp->yPlane;
-        pict.data[1] = vp->uPlane;
-        pict.data[2] = vp->vPlane;
+        frame->data[0] = vp->yPlane;
+        frame->data[1] = vp->uPlane;
+        frame->data[2] = vp->vPlane;
 
-        pict.linesize[0] = vp->width;
-        pict.linesize[1] = vp->uvPitch;
-        pict.linesize[2] = vp->uvPitch;
+        frame->linesize[0] = vp->width;
+        frame->linesize[1] = vp->uvPitch;
+        frame->linesize[2] = vp->uvPitch;
 
         // Convert the image into YUV format that SDL uses
-        sws_scale(is->sws_ctx, (uint8_t const *const *) pFrame->data,
-                  pFrame->linesize, 0, is->video_ctx->height,
-                  pict.data, pict.linesize);
+        sws_scale(
+                is->sws_ctx,
+                (uint8_t const *const *) pFrame->data,
+                pFrame->linesize,
+                0,
+                is->video_ctx->height,
+                frame->data,
+                frame->linesize);
 
         /* now we inform our display thread that we have a pic ready */
         if (++is->pictq_windex == VIDEO_PICTURE_QUEUE_SIZE) {
