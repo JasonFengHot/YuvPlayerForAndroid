@@ -202,9 +202,9 @@ public class SDLActivity extends Activity {
 
         mLayout = new RelativeLayout(this);
         mLayout.addView(mSurface);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(1024, 768);
+        setContentView(mLayout, layoutParams);
 
-        setContentView(mLayout);
-        
         // Get filename from "Open with" of another application
         Intent intent = getIntent();
 
@@ -1188,7 +1188,7 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         SDLActivity.onNativeResize(width, height, sdlFormat, mDisplay.getRefreshRate());
         Log.v("SDL", "Window size: " + width + "x" + height);
 
- 
+
         boolean skip = false;
         int requestedOrientation = SDLActivity.mSingleton.getRequestedOrientation();
 
@@ -1211,7 +1211,7 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         if (skip) {
            double min = Math.min(mWidth, mHeight);
            double max = Math.max(mWidth, mHeight);
-           
+
            if (max / min < 1.20) {
               Log.v("SDL", "Don't skip on such aspect-ratio. Could be a square resolution.");
               skip = false;
